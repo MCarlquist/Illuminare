@@ -1,8 +1,13 @@
 
 import inquirer from "inquirer";
-import { GoogleGenerativeAI } from "@google/generative-ai";
+import { GenerativeModel, GoogleGenerativeAI } from "@google/generative-ai";
 import chalk from "chalk";
 import { saveProjectToLocalStorage, getProjectFromLocalStorage } from "../storage.mjs";
+const runtime = process;
+
+// Generative AI client
+const genAI = new GoogleGenerativeAI(runtime.env.GEN_KEY);
+
 
 /**
  * Handles the frontend framework selection and subsequent questions.
@@ -68,6 +73,20 @@ async function handleFrameworkSelection(framework) {
     }
 }
 
+async function generateCode(prompt) {
+    const request = {
+        model: 'gemini-1.5-flash',
+        prompt,
+        parameters: {
+            'maxOutputTokens': 100,
+        },
+    };
+
+    const [response] = await genAI.generateText(request);
+
+    return response.text;
+}
+
 /**
  * Handles the case when no frontend framework is selected.
  *
@@ -75,9 +94,25 @@ async function handleFrameworkSelection(framework) {
  */
 async function noFramework() {
     const loadedProject = getProjectFromLocalStorage();
-    console.log(chalk.bgGreen('No frontend framework selected'));
+
+    console.log(chalk.green('No frontend framework selected'));
+
     console.log(`No frontend framework selected. Using project idea: ${loadedProject}`);
+
+    // Generate files according to project Idea.
+    const prompt = `Create a frontend project based upon ${loadedProject}`;
+    const generateCode = await generateCode(prompt);
+
+    console.log(generateCode);
+    
+
+
 }
+
+
+
+
+
 /**
  * Handles the questions related to React framework.
  * @returns {void}
