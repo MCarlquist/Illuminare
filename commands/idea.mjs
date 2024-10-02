@@ -5,18 +5,14 @@ import ora from 'ora';
 import dotenv from 'dotenv';
 import { handleFrontendQuestions } from "./frontendQuestions.mjs";
 import { handleBackendQuestions } from "./backendQuestions.mjs";
+import { generationConfig } from "../config/index.mjs";
+
 dotenv.config();
 const runtime = process;
 
 // Generative AI client
 const genAI = new GoogleGenerativeAI(runtime.env.GEN_KEY);
 const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
-
-const generationConfig = {
-        temperature: 0.7,
-        topK: 40,
-        maxOutputTokens: 1024,
-};
 
 /**
  * Initializes the Illuminare application and starts the project idea generation process.
@@ -105,7 +101,7 @@ async function generateContent(idea) {
             contents: [{
                 parts: [{
                     text: `As an expert programmer, ${idea.projectIdea}. 
-                    Focus on providing detailed technical specifications and suggestions for implementation. It should be language agnostic but easy to be understood by any developer.`
+                    Focus on providing general technical specifications and suggestions for implementation. It should be language agnostic but easy to be understood by any developer.`
                 }]
             }],
             generationConfig
