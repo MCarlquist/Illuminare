@@ -1,13 +1,18 @@
 
 import inquirer from "inquirer";
-import { GenerativeModel, GoogleGenerativeAI } from "@google/generative-ai";
+import { GoogleGenerativeAI } from "@google/generative-ai";
 import chalk from "chalk";
 import { saveProjectToLocalStorage, getProjectFromLocalStorage } from "../storage.mjs";
+import ora from 'ora';
+import { generationConfig } from "../config/index.mjs";
+import dotenv from "dotenv";
 const runtime = process;
+
+dotenv.config();
 
 // Generative AI client
 const genAI = new GoogleGenerativeAI(runtime.env.GEN_KEY);
-
+const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
 /**
  * Handles the frontend framework selection and subsequent questions.
@@ -73,19 +78,7 @@ async function handleFrameworkSelection(framework) {
     }
 }
 
-async function generateCode(prompt) {
-    const request = {
-        model: 'gemini-1.5-flash',
-        prompt,
-        parameters: {
-            'maxOutputTokens': 100,
-        },
-    };
 
-    const [response] = await genAI.generateText(request);
-
-    return response.text;
-}
 
 /**
  * Handles the case when no frontend framework is selected.
@@ -100,15 +93,31 @@ async function noFramework() {
     console.log(`No frontend framework selected. Using project idea: ${loadedProject}`);
 
     // Generate files according to project Idea.
-    const prompt = `Create a frontend project based upon ${loadedProject}`;
-    const generateCode = await generateCode(prompt);
-
-    console.log(generateCode);
+    const noFrameworkProject = await generateCode(loadedProject);
+    console.log(noFrameworkProject);
     
-
-
 }
 
+async function generateCode(idea) {
+    const spinner = ora('Generating content...').start();
+
+    try {
+        const result = await model.generateContent({
+            contents: [{
+                parts: [{
+                    text: `Generate the required code files in html, css, and javascript for ${idea}. Be as precice and suggestive as possible. Skip explanation.`
+                }]
+            }],
+            generationConfig
+        });
+
+        spinner.succeed('Content generated successfully');
+        return result.response.text();
+    } catch (error) {
+        spinner.fail('Failed to generate content');
+        throw error;
+    }
+}
 
 
 

@@ -43,7 +43,7 @@ async function fineTuneProjectPrompt(idea) {
         contents: [{
             parts: [{
                 text: `As an expert programmer, ${idea} to the specifications in ${finetune.fineTuneProject}.
-                Focus on providing general technical specifications and suggestions for implementation.`
+                Give one brief programming idea of what the user can create.`
             }]
         }],
         generationConfig
@@ -101,7 +101,7 @@ async function generateContent(idea) {
             contents: [{
                 parts: [{
                     text: `As an expert programmer, ${idea.projectIdea}. 
-                    Focus on providing general technical specifications and suggestions for implementation. It should be language agnostic but easy to be understood by any developer.`
+                    Give one brief programming idea of what the user can create.`
                 }]
             }],
             generationConfig
